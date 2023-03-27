@@ -6,6 +6,14 @@ from .views import get_unique_short_id
 from .error_handlers import InvalidAPIUsage
 
 
+@app.route('/api/id/<string:id>/', methods=['GET'])
+def delete_opinion(id):
+    link = URLMap.query.filter_by(short=id).first()
+    if link is None:
+        raise InvalidAPIUsage('Указанный id не найден')
+    return jsonify({"url": link.original}), 200
+
+
 @app.route('/api/id/', methods=['POST'])
 def generate_link():
     data = request.get_json()
