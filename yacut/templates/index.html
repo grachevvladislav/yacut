@@ -4,11 +4,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" href="img/fav/fav.ico" type="image">
-  <link rel="apple-touch-icon" sizes="180x180" href="img/fav/apple-touch-icon.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="img/fav/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="img/fav/favicon-16x16.png">
-  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <link rel="icon" href="{{ url_for('static', filename='img/fav/fav.ico') }}" type="image">
+  <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='img/fav/apple-touch-icon.png') }}">
+  <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='img/fav/favicon-32x32.png') }}">
+  <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='img/fav/favicon-16x16.png') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
   <title>YaCut - укоротитель ссылок</title>
 </head>
 
@@ -23,7 +23,7 @@
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="nav nav-pills">
             <li class="nav-item">
-              <a class="nav-link" href="">
+              <a class="nav-link" href="{{ url_for('index_view') }}">
                 Главная
               </a>
             </li>
@@ -46,17 +46,28 @@
           <div class="col-sm">
           </div>
           <div class="col-sm">
-            <form>
+            <form method="POST" novalidate>
+            {{ form.csrf_token }}
               <div>
                 <div>
-                  <input type="text" class="form-control form-control-lg py-2 mb-3" id="form-title" name=""
-                    placeholder="Длинная ссылка">
-                  <p><span style="color:red">Текст возможной ошибки</span></p>
+                  {{ form.original_link(class="form-control form-control-lg py-2 mb-3", id="form-title", placeholder=form.original_link.label.text) }}
+                  <p>
+                    {% if form.original_link.errors %}
+                      {% for error in form.original_link.errors %}
+                        <span style="color: red">{{ error }}</span>
+                      {% endfor %}
+                    {% endif %}
+                  </p>
                 </div>
                 <div>
-                  <input type="url" class="form-control form-control-lg py-2 mb-3" id="form-link" name=""
-                    placeholder="Ваш вариант короткой ссылки">
-                  <p><span style="color:red">Текст возможной ошибки</span></p>
+                  {{ form.custom_id(class="form-control form-control-lg py-2 mb-3", id="form-link", placeholder=form.custom_id.label.text) }}
+                  <p>
+                    {% if form.custom_id.errors %}
+                      {% for error in form.custom_id.errors %}
+                        <span style="color: red">{{ error }}</span>
+                      {% endfor %}
+                    {% endif %}
+                  </p>
                 </div>
 
                 <input type="submit" class="btn btn-primary" value="Создать">
@@ -67,21 +78,33 @@
           </div>
         </div>
       </div>
-
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
       <div class="container">
         <div class="row ">
           <div class="col-sm">
           </div>
           <div class="col-sm">
             <p class="text-center">
-            <h5 class="text-center">Пример информационного сообщения</h5>
+            {% for category, message in messages %}
+              <h5 class="text-center">
+                {% if category == 'url'%}
+                  <a href="{{ message }}">
+                    {{ message }}
+                  </a>
+                {% else%}
+                    {{ message }}
+                {% endif%}
+              </h5>
+            {% endfor %}
             </p>
           </div>
           <div class="col-sm">
           </div>
         </div>
       </div>
-
+    {% endif %}
+    {% endwith %}
     </section>
   </main>
   <footer class="fixed-bottom border-top text-center py-3">
