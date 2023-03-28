@@ -4,6 +4,9 @@ from .models import URLMap
 
 from .views import get_unique_short_id
 from .error_handlers import InvalidAPIUsage
+import re
+
+pattern = re.compile(r'^[a-z,A-Z,0-9]{1,16}$')
 
 
 @app.route('/api/id/<string:id>/', methods=['GET'])
@@ -25,6 +28,10 @@ def generate_link():
     if 'custom_id' in data:
         short = data['custom_id']
         if URLMap.query.filter_by(short=short).first() is not None:
+            raise InvalidAPIUsage(
+                f'Имя "{short}" уже занято.'
+            )
+        if re.search(pattern, short) is None:
             raise InvalidAPIUsage(
                 'Указано недопустимое имя для короткой ссылки'
             )
