@@ -31,7 +31,7 @@ def index_view():
         short = form.custom_id.data
         if short:
             if URLMap.query.filter_by(short=short).first() is not None:
-                flash(f'Имя "{short}" уже занято.')
+                flash(f'Имя {short} уже занято!')
                 return render_template('index.html', form=form)
         else:
             short = get_unique_short_id()

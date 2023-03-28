@@ -26,7 +26,7 @@ def generate_link():
     if 'url' not in data:
         raise InvalidAPIUsage('\"url\" является обязательным полем!')
     url = data['url']
-    if 'custom_id' in data and len(data['custom_id']) > 0:
+    if 'custom_id' in data and data['custom_id'] not in (None, ''):
         short = data['custom_id']
         if URLMap.query.filter_by(short=short).first() is not None:
             raise InvalidAPIUsage(
