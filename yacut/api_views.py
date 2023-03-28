@@ -1,10 +1,11 @@
-from flask import jsonify, request, url_for
-from . import app, db
-from .models import URLMap
-
-from .views import get_unique_short_id
-from .error_handlers import InvalidAPIUsage
 import re
+
+from flask import jsonify, request, url_for
+
+from . import app, db
+from .error_handlers import InvalidAPIUsage
+from .models import URLMap
+from .views import get_unique_short_id
 
 pattern = re.compile(r'^[a-z,A-Z,0-9]{1,16}$')
 

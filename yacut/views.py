@@ -1,5 +1,5 @@
-import string
 import random
+import string
 
 from flask import abort, flash, redirect, render_template, url_for
 

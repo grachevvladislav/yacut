@@ -1,11 +1,12 @@
-from flask import jsonify
+from flask import jsonify, render_template
 
 from . import app
-from flask import render_template
+
 
 @app.errorhandler(404)
 def page_not_found(error):
     return render_template('404.html'), 404
+
 
 class InvalidAPIUsage(Exception):
     status_code = 400
