@@ -13,7 +13,7 @@ pattern = re.compile(r'^[a-z,A-Z,0-9]{1,16}$')
 def delete_opinion(id):
     link = URLMap.query.filter_by(short=id).first()
     if link is None:
-        raise InvalidAPIUsage('Указанный id не найден')
+        raise InvalidAPIUsage('Указанный id не найден', 404)
     return jsonify({"url": link.original}), 200
 
 
@@ -25,7 +25,7 @@ def generate_link():
     if 'url' not in data:
         raise InvalidAPIUsage('\"url\" является обязательным полем!')
     url = data['url']
-    if 'custom_id' in data and data['custom_id'] != '':
+    if 'custom_id' in data and len(data['custom_id']) > 0:
         short = data['custom_id']
         if URLMap.query.filter_by(short=short).first() is not None:
             raise InvalidAPIUsage(
