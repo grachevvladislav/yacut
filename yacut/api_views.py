@@ -28,16 +28,14 @@ def generate_link():
     data = request.get_json()
     if data is None:
         raise InvalidAPIUsage('Отсутствует тело запроса')
-    url = data.get('url', None)
+    url = data.get('url')
     if url is None:
         raise InvalidAPIUsage('\"url\" является обязательным полем!')
-    print(url)
-    print(re.search(url_pattern, url))
     if re.search(url_pattern, url) is None:
         raise InvalidAPIUsage(
             'Не похоже на ссылку'
         )
-    short = data.get('custom_id', None)
+    short = data.get('custom_id')
     if short:
         if URLMap.query.filter_by(short=short).first() is not None:
             raise InvalidAPIUsage(
