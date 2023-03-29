@@ -1,21 +1,26 @@
 import re
+from http import HTTPStatus
 
 from flask import jsonify, request, url_for
 
 from . import app, db
 from .error_handlers import InvalidAPIUsage
 from .models import URLMap
-from .views import get_unique_short_id
+from .utils import get_unique_short_id
 
-pattern = re.compile(r'^[a-z,A-Z,0-9]{1,16}$')
+short_pattern = re.compile(r'^[a-z,A-Z,0-9]{1,16}$')
+url_pattern = re.compile(
+    r'^http(s)?(:)?\/\/(www\.)?([a-zA-Z0-9@:%._\+~\/#=]){2,256}'
+    r'\.([a-z]){2,6}[-a-zA-Z0-9@:%_\+.~#?&\/=]*$'
+)
 
 
 @app.route('/api/id/<string:id>/', methods=['GET'])
 def delete_opinion(id):
     link = URLMap.query.filter_by(short=id).first()
     if link is None:
-        raise InvalidAPIUsage('Указанный id не найден', 404)
-    return jsonify({"url": link.original}), 200
+        raise InvalidAPIUsage('Указанный id не найден', HTTPStatus.NOT_FOUND)
+    return jsonify({"url": link.original}), HTTPStatus.OK
 
 
 @app.route('/api/id/', methods=['POST'])
@@ -23,16 +28,22 @@ def generate_link():
     data = request.get_json()
     if data is None:
         raise InvalidAPIUsage('Отсутствует тело запроса')
-    if 'url' not in data:
+    url = data.get('url', None)
+    if url is None:
         raise InvalidAPIUsage('\"url\" является обязательным полем!')
-    url = data['url']
-    if 'custom_id' in data and data['custom_id'] not in (None, ''):
-        short = data['custom_id']
+    print(url)
+    print(re.search(url_pattern, url))
+    if re.search(url_pattern, url) is None:
+        raise InvalidAPIUsage(
+            'Не похоже на ссылку'
+        )
+    short = data.get('custom_id', None)
+    if short:
         if URLMap.query.filter_by(short=short).first() is not None:
             raise InvalidAPIUsage(
                 f'Имя "{short}" уже занято.'
             )
-        if re.search(pattern, short) is None:
+        if re.search(short_pattern, short) is None:
             raise InvalidAPIUsage(
                 'Указано недопустимое имя для короткой ссылки'
             )
@@ -49,4 +60,4 @@ def generate_link():
             "url": url,
             "short_link": url_for("redirect_view", id=short, _external=True)
         }
-    ), 201)
+    ), HTTPStatus.CREATED)

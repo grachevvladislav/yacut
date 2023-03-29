@@ -1,26 +1,14 @@
-import random
-import string
-
-from flask import abort, flash, redirect, render_template, url_for
+from flask import flash, redirect, render_template, url_for
 
 from . import app, db
 from .forms import URLForm
 from .models import URLMap
-
-
-def get_unique_short_id():
-    chars = string.ascii_uppercase + string.ascii_lowercase + string.digits
-    short = ''.join(random.choice(chars) for _ in range(6))
-    if URLMap.query.filter_by(short=short).first() is not None:
-        short = get_unique_short_id()
-    return short
+from .utils import get_unique_short_id
 
 
 @app.route('/<string:id>', methods=['GET'])
 def redirect_view(id):
-    link = URLMap.query.filter_by(short=id).first()
-    if link is None:
-        abort(404)
+    link = URLMap.query.filter_by(short=id).first_or_404()
     return redirect(link.original)
 
 
